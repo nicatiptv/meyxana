@@ -1,4 +1,525 @@
-<!DOCTYPE html>
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+    <title>Canlı TV Kanalı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #4cc9f0, #4361ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(76, 201, 240, 0.3);
+        }
+        
+        .subtitle {
+            color: #b8c1ec;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .player-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .video-wrapper {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            background: #000;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #videoPlayer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(45deg, #4361ee, #3a0ca3);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            background: linear-gradient(45deg, #3a0ca3, #4361ee);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+        }
+        
+        .control-btn.secondary {
+            background: linear-gradient(45deg, #7209b7, #560bad);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .live-badge {
+            background: #ff0033;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #4361ee;
+        }
+        
+        .info-box h3 {
+            color: #4cc9f0;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #b8c1ec;
+            font-size: 0.9rem;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        /* Overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+        }
+        
+        .overlay.hidden {
+            display: none;
+        }
+        
+        .start-btn {
+            background: linear-gradient(45deg, #4361ee, #3a0ca3);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6);
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .video-wrapper {
+                height: 300px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .player-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .video-wrapper {
+                height: 250px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .start-btn {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📺 Canlı TV Yayını</h1>
+            <p class="subtitle">HD Kalitede Kesintisiz Canlı Yayın</p>
+        </header>
+        
+        <div class="status-indicator">
+            <div class="live-badge">CANLI</div>
+            <span id="statusText">Yayın Hazır</span>
+        </div>
+        
+        <div class="player-container">
+            <div class="video-wrapper">
+                <!-- Overlay ekranı -->
+                <div class="overlay" id="overlay">
+                    <h2>Yayını İzlemeye Hazır mısınız?</h2>
+                    <p>Yüksek kalitede canlı yayın için başlat butonuna tıklayın</p>
+                    <button class="start-btn" onclick="startStream()">
+                        ▶️ YAYINI BAŞLAT
+                    </button>
+                    <p style="color: #b8c1ec; font-size: 0.9rem; margin-top: 20px;">
+                        Not: Bazı tarayıcılarda otomatik oynatma engellenebilir
+                    </p>
+                </div>
+                
+                <!-- Video element -->
+                <video id="videoPlayer" preload="metadata" playsinline webkit-playsinline>
+                    <source id="videoSource" type="application/x-mpegURL">
+                    Tarayıcınız bu video formatını desteklemiyor.
+                </video>
+                
+                <!-- Hata mesajı -->
+                <div class="error-message" id="errorMessage">
+                    <h3>⚠️ Yayın Yüklenemedi</h3>
+                    <p>Lütfen aşağıdaki çözümleri deneyin:</p>
+                    <ul style="text-align: left; margin: 15px 0;">
+                        <li>İnternet bağlantınızı kontrol edin</li>
+                        <li>Sayfayı yenileyin (F5)</li>
+                        <li>Farklı bir tarayıcı deneyin</li>
+                    </ul>
+                    <button class="control-btn secondary" onclick="retryStream()">
+                        🔄 Tekrar Dene
+                    </button>
+                </div>
+            </div>
+            
+            <div class="player-controls">
+                <button class="control-btn" onclick="playVideo()">
+                    <span>▶️</span> Oynat
+                </button>
+                <button class="control-btn" onclick="pauseVideo()">
+                    <span>⏸️</span> Duraklat
+                </button>
+                <button class="control-btn" onclick="toggleMute()">
+                    <span id="muteIcon">🔊</span> Ses
+                </button>
+                <button class="control-btn" onclick="toggleFullscreen()">
+                    <span>🔲</span> Tam Ekran
+                </button>
+                <button class="control-btn secondary" onclick="restartStream()">
+                    <span>🔄</span> Yeniden Başlat
+                </button>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>🎯 Yayın Bilgileri</h3>
+            <p>• Canlı yayın 24/7 kesintisiz devam etmektedir</p>
+            <p>• HD kalitede yayın akışı</p>
+            <p>• Tüm cihazlarla uyumlu (PC, Tablet, Telefon)</p>
+            <p>• Otomatik kalite ayarlama özelliği</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>📱 Desteklenen Tarayıcılar</h3>
+            <p>• Google Chrome (Tavsiye edilir)</p>
+            <p>• Mozilla Firefox</p>
+            <p>• Microsoft Edge</p>
+            <p>• Safari (Mac/iOS)</p>
+        </div>
+        
+        <footer>
+            <p>© 2024 Canlı TV Yayını - Tüm hakları saklıdır</p>
+            <p>Yayın kalitesi internet hızınıza göre otomatik ayarlanır</p>
+        </footer>
+    </div>
+
+    <script>
+        // M3U8 linki (gizli)
+        const m3u8Url = 'https://app.viloud.tv/hls/channel/fd1deab96414e92f2ab5591166f55f9d.m3u8';
+        
+        // Elementleri seç
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoSource = document.getElementById('videoSource');
+        const overlay = document.getElementById('overlay');
+        const errorMessage = document.getElementById('errorMessage');
+        const statusText = document.getElementById('statusText');
+        const muteIcon = document.getElementById('muteIcon');
+        
+        // Video oynatıcıyı başlat
+        function startStream() {
+            statusText.textContent = 'Yayın yükleniyor...';
+            overlay.classList.add('hidden');
+            errorMessage.classList.remove('show');
+            
+            // Video kaynağını ayarla
+            videoSource.src = m3u8Url;
+            videoPlayer.load();
+            
+            // Otomatik oynatmayı dene
+            const playPromise = videoPlayer.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Başarılı
+                    statusText.textContent = 'Yayın Oynatılıyor';
+                    console.log('Yayın başarıyla başlatıldı');
+                }).catch(error => {
+                    // Otomatik oynatma engellendi
+                    statusText.textContent = 'Otomatik oynatma engellendi';
+                    console.log('Otomatik oynatma engellendi, kullanıcı tıklamalı');
+                    showPlayButton();
+                });
+            }
+        }
+        
+        // Manuel oynat butonu göster
+        function showPlayButton() {
+            overlay.classList.remove('hidden');
+            overlay.innerHTML = `
+                <h2>Oynatma Butonuna Tıklayın</h2>
+                <p>Tarayıcınız otomatik oynatmayı engelledi</p>
+                <button class="start-btn" onclick="manualPlay()">
+                    ▶️ YAYINI OYNAT
+                </button>
+            `;
+        }
+        
+        // Manuel oynat
+        function manualPlay() {
+            videoPlayer.play().then(() => {
+                overlay.classList.add('hidden');
+                statusText.textContent = 'Yayın Oynatılıyor';
+            }).catch(error => {
+                showError();
+            });
+        }
+        
+        // Video oynat
+        function playVideo() {
+            videoPlayer.play().then(() => {
+                statusText.textContent = 'Yayın Oynatılıyor';
+            }).catch(error => {
+                console.error('Oynatma hatası:', error);
+                showError();
+            });
+        }
+        
+        // Video duraklat
+        function pauseVideo() {
+            videoPlayer.pause();
+            statusText.textContent = 'Yayın Duraklatıldı';
+        }
+        
+        // Ses aç/kapa
+        let isMuted = false;
+        function toggleMute() {
+            isMuted = !isMuted;
+            videoPlayer.muted = isMuted;
+            muteIcon.textContent = isMuted ? '🔇' : '🔊';
+        }
+        
+        // Tam ekran
+        function toggleFullscreen() {
+            const videoWrapper = document.querySelector('.video-wrapper');
+            
+            if (!document.fullscreenElement) {
+                if (videoWrapper.requestFullscreen) {
+                    videoWrapper.requestFullscreen();
+                } else if (videoWrapper.webkitRequestFullscreen) {
+                    videoWrapper.webkitRequestFullscreen();
+                } else if (videoWrapper.msRequestFullscreen) {
+                    videoWrapper.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        // Yayını yeniden başlat
+        function restartStream() {
+            statusText.textContent = 'Yayın yeniden başlatılıyor...';
+            videoPlayer.currentTime = 0;
+            videoPlayer.load();
+            videoPlayer.play().then(() => {
+                statusText.textContent = 'Yayın Oynatılıyor';
+            }).catch(error => {
+                showPlayButton();
+            });
+        }
+        
+        // Tekrar dene
+        function retryStream() {
+            errorMessage.classList.remove('show');
+            startStream();
+        }
+        
+        // Hata göster
+        function showError() {
+            errorMessage.classList.add('show');
+            statusText.textContent = 'Yayın Hatası';
+        }
+        
+        // Video olaylarını dinle
+        videoPlayer.addEventListener('error', function(e) {
+            console.error('Video hatası:', e);
+            showError();
+        });
+        
+        videoPlayer.addEventListener('waiting', function() {
+            statusText.textContent = 'Yayın yükleniyor...';
+        });
+        
+        videoPlayer.addEventListener('playing', function() {
+            statusText.textContent = 'Yayın Oynatılıyor';
+        });
+        
+        videoPlayer.addEventListener('ended', function() {
+            statusText.textContent = 'Yayın Sona Erdi';
+        });
+        
+        // Sayfa yüklendiğinde
+        window.addEventListener('load', function() {
+            // iOS Safari kontrolü
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            if (isIOS) {
+                // iOS için farklı yaklaşım
+                statusText.textContent = 'iOS için "YAYINI BAŞLAT" butonuna tıklayın';
+            }
+            
+            // Tarayıcı kontrolü
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (userAgent.includes('chrome')) {
+                console.log('Chrome tarayıcı tespit edildi');
+            } else if (userAgent.includes('firefox')) {
+                console.log('Firefox tarayıcı tespit edildi');
+            } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+                console.log('Safari tarayıcı tespit edildi');
+            }
+        });
+        
+        // Çevrimdışı durumunu kontrol et
+        window.addEventListener('offline', function() {
+            statusText.textContent = 'İnternet bağlantısı yok';
+            showError();
+        });
+        
+        window.addEventListener('online', function() {
+            statusText.textContent = 'Bağlantı yenilendi, tekrar deneyin';
+        });
+    </script>
+</body>
+</html>>
 <html>
 <head>
     <title>Canlı TV Kanalı</title>
@@ -422,3 +943,4 @@
     </script>
 </body>
 </html>
+
